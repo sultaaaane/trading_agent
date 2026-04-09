@@ -2,7 +2,8 @@ from agentlightning.algorithm import Algorithm
 from datasets import Dataset as HuggingFaceDataset
 from trl import SFTTrainer, SFTConfig
 from unsloth import FastLanguageModel
-import multiprocessing, time
+import multiprocessing
+import time
 import agentlightning as agl
 from training.adapter import HierarchicalTraceAdapter
 
@@ -86,7 +87,7 @@ class SFTOnSuccess(Algorithm):
                 await llm_proxy.replace_model(
                     self.base_model,
                     f"openai/{output_dir}",
-                    api_base=f"http://localhost:8002/v1",
+                    api_base="http://localhost:8002/v1",
                 )
                 print("LLMProxy updated with fine-tuned junior analyst model.")
 
