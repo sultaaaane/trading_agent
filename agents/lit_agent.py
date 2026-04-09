@@ -21,9 +21,30 @@ class TradingIntelligenceAgent(agl.LitAgent):
     ) -> None:
         print(f"\n-- Starting Rollout {rollout.rollout_id} for Task: {task['id']} --")
 
-        # Get the model-under-training from the VERL algorithm via the LLMProxy
-        llm_resource = cast(agl.LLM, resources["senior_strategist_llm"])
+        # Resolve the model-under-training resource from the rollout resources.
+        llm_resource = cast(agl.LLM, resources.get("senior_strategist_llm"))
+        if llm_resource is None:
+            llm_resource = next(
+                (
+                    cast(agl.LLM, resource)
+                    for resource in resources.values()
+                    if isinstance(resource, agl.LLM)
+                ),
+                None,
+            )
+        if llm_resource is None:
+            print(
+                f"Rollout failed: No LLM resource found in resources: {list(resources.keys())}"
+            )
+            agl.emit_reward(0.0)
+            return
+
         langchain_callback = self.trainer.tracer.get_langchain_handler()
+        if hasattr(llm_resource, "get_base_url"):
+            attempt_id = getattr(rollout, "attempt_id", "0")
+            base_url = llm_resource.get_base_url(rollout.rollout_id, attempt_id)
+        else:
+            base_url = llm_resource.endpoint
 
         # Create a new ChatOpenAI instance pointed at the training server's endpoint.
         # We construct a fresh instance rather than using with_config, because
@@ -31,7 +52,7 @@ class TradingIntelligenceAgent(agl.LitAgent):
         llm_with_endpoint = ChatOpenAI(
             model="senior_strategist_llm",
             temperature=0.1,
-            openai_api_base=llm_resource.endpoint,
+            openai_api_base=base_url,
             openai_api_key=llm_resource.api_key or "dummy-key",
         )
 

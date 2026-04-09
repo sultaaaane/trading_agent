@@ -2,14 +2,14 @@ from langchain_openai import ChatOpenAI
 
 
 junior_analyst_llm = ChatOpenAI(
-    model="Qwen/Qwen2-1.5B-Instruct",
+    model="llama3",
     temperature=0.7,
     openai_api_base="http://localhost:11434/v1",
     openai_api_key="ollama",
 )
 
 cio_llm = ChatOpenAI(
-    model="Qwen/Qwen2-1.5B-Instruct",
+    model="qwen2:1.5b",
     temperature=0.0,
     openai_api_base="http://localhost:11434/v1",
     openai_api_key="ollama",
@@ -25,7 +25,7 @@ senior_strategist_llm = ChatOpenAI(
 
 
 review_board_llm = ChatOpenAI(
-    model="mistralai/Mixtral-8x7B-Instruct-v0.1",
+    model="mixtral",
     temperature=0.0,
     openai_api_base="http://localhost:11434/v1",
     openai_api_key="ollama",

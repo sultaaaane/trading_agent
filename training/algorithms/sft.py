@@ -1,7 +1,8 @@
 from agentlightning.algorithm import Algorithm
 from datasets import Dataset as HuggingFaceDataset
 from trl import SFTTrainer, SFTConfig
-from unsloth import FastLanguageModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import get_peft_model, LoraConfig
 import multiprocessing
 import time
 import agentlightning as agl
@@ -10,17 +11,22 @@ from training.adapter import HierarchicalTraceAdapter
 
 def unsloth_sft_trainer(dataset, base_model, output_dir):
     """SFT training function that runs in a separate process."""
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=base_model, max_seq_length=4096, load_in_4bit=True
+    tokenizer = AutoTokenizer.from_pretrained(base_model)
+    model = AutoModelForCausalLM.from_pretrained(
+        base_model,
+        load_in_4bit=True,
     )
-    model = FastLanguageModel.get_peft_model(
-        model,
+
+    peft_config = LoraConfig(
         r=16,
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
         lora_alpha=16,
+        target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
         lora_dropout=0,
         bias="none",
+        task_type="CAUSAL_LM",
     )
+    model = get_peft_model(model, peft_config)
+
     trainer = SFTTrainer(
         model=model,
         tokenizer=tokenizer,
@@ -39,7 +45,8 @@ def unsloth_sft_trainer(dataset, base_model, output_dir):
         ),
     )
     trainer.train()
-    model.save_pretrained_merged(output_dir, tokenizer, save_method="merged_16bit")
+    model.save_pretrained(output_dir)
+    tokenizer.save_pretrained(output_dir)
     return output_dir
 
 
