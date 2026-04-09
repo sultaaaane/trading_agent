@@ -48,7 +48,8 @@ def strategy_evaluator(strategy: TradingStrategy, context: str) -> dict:
     try:
         evaluation = evaluator.invoke(evaluator_prompt.format_messages())
         return evaluation.dict()
-    except Exception:
+    except Exception as e:
+        print(f"Evaluation error: {e}")
         return {
             k: 0.1
             for k in [

@@ -1,4 +1,3 @@
-import pandas as pd
 import random
 from typing import List, TypedDict
 
@@ -18,8 +17,7 @@ def load_and_prepare_dataset() -> tuple[List[TradingTask], List[TradingTask]]:
     print("Preparing financial analysis dataset...")
 
     # TODO Get data from financial data provider.
-    
-    
+
     # For the demo
     tickers = [
         "AAPL",
