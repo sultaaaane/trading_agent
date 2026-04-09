@@ -1,5 +1,8 @@
 from langchain_core.tools import tool
 from langchain_community.tools.tavily_search import TavilySearchResults
+import os
+
+os.environ["TAVILY_API_KEY"] = os.environ.get("TAVILY_API_KEY", "dummy-key_tavily")
 
 # Initialize shared clients for our tools
 tavily_client = TavilySearchResults(max_results=5)

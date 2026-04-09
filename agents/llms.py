@@ -1,5 +1,4 @@
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 
 junior_analyst_llm = ChatOpenAI(
